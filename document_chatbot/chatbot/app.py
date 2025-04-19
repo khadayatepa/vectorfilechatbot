@@ -1,5 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()
 import streamlit as st
 import os
 from dotenv import load_dotenv
@@ -10,43 +8,48 @@ from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatOpenAI
 
-# Load environment variables from .env (if present)
+# Load .env and get API key
 load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    st.error("❌ OPENAI_API_KEY not found. Please check your .env file.")
+    st.stop()
 
 # Title
 st.title("🤖 Document Q&A Chatbot")
 
-# --- 1. API Key Input ---
-#api_key = st.text_input("🔑 Enter your OpenAI API key", type="password")
-#if not api_key:
-#    st.warning("Please enter your OpenAI API key to continue.")
-#    st.stop()
-#os.environ["OPENAI_API_KEY"] = api_key
-
-# --- 2. PDF Upload ---
+# Upload
 uploaded_file = st.file_uploader("📄 Upload a PDF file", type=["pdf"])
 if uploaded_file:
-    # Ensure the data directory exists
     os.makedirs("data", exist_ok=True)
+    os.makedirs("vectorstore", exist_ok=True)
 
-    # Save uploaded file
+    # Save file
     file_path = os.path.join("data", uploaded_file.name)
     with open(file_path, "wb") as f:
         f.write(uploaded_file.read())
     st.success(f"✅ {uploaded_file.name} uploaded successfully.")
 
-    # --- 3. Load and Split PDF ---
-    loader = PyPDFLoader(file_path)
-    docs = loader.load()
+    # Vector path
+    index_name = os.path.splitext(uploaded_file.name)[0]
+    vector_path = os.path.join("vectorstore", index_name)
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    chunks = splitter.split_documents(docs)
+    # Load or Create vectorstore
+    if os.path.exists(vector_path):
+        db = FAISS.load_local(vector_path, OpenAIEmbeddings(openai_api_key=api_key), allow_dangerous_deserialization=True)
+        st.info(f"🔄 Loaded existing vector index for '{uploaded_file.name}'")
+    else:
+        loader = PyPDFLoader(file_path)
+        docs = loader.load()
+        splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        chunks = splitter.split_documents(docs)
+        embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+        db = FAISS.from_documents(chunks, embeddings)
+        db.save_local(vector_path)
+        st.success(f"🧠 Vector index created and saved for '{uploaded_file.name}'")
 
-    # --- 4. Create Embeddings and Vector Store ---
-    embeddings = OpenAIEmbeddings(openai_api_key=api_key)
-    db = FAISS.from_documents(chunks, embeddings)
-
-    # --- 5. User Query ---
+    # Question Input
     query = st.text_input("💬 Ask a question about the document")
     if query:
         with st.spinner("🧠 Thinking..."):
