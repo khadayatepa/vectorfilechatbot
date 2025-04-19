@@ -15,7 +15,10 @@ if "chat_history" not in st.session_state:
 
 uploaded_file = st.file_uploader("Upload your PDF", type=["pdf"])
 
+import os
+
 if uploaded_file:
+    os.makedirs("data", exist_ok=True)
     with open(f"data/{uploaded_file.name}", "wb") as f:
         f.write(uploaded_file.read())
     
