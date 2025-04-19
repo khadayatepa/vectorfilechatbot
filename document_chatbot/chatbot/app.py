@@ -17,10 +17,10 @@ load_dotenv()
 st.title("🤖 Document Q&A Chatbot")
 
 # --- 1. API Key Input ---
-api_key = st.text_input("🔑 Enter your OpenAI API key", type="password")
-if not api_key:
-    st.warning("Please enter your OpenAI API key to continue.")
-    st.stop()
+#api_key = st.text_input("🔑 Enter your OpenAI API key", type="password")
+#if not api_key:
+#    st.warning("Please enter your OpenAI API key to continue.")
+#    st.stop()
 os.environ["OPENAI_API_KEY"] = api_key
 
 # --- 2. PDF Upload ---
