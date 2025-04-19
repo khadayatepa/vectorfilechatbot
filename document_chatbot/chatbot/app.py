@@ -13,6 +13,7 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 st.write("DEBUG API Key:", api_key)
 
+print("DEBUG API Key:", os.getenv("OPENAI_API_KEY"))
 
 if not api_key:
     st.error("❌ OPENAI_API_KEY not found. Please check your .env file.")
