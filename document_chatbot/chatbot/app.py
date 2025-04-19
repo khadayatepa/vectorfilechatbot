@@ -11,6 +11,8 @@ from langchain.chat_models import ChatOpenAI
 # Load .env and get API key
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
+st.write("DEBUG API Key:", api_key)
+
 
 if not api_key:
     st.error("❌ OPENAI_API_KEY not found. Please check your .env file.")
