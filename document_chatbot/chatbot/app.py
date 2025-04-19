@@ -21,7 +21,7 @@ st.title("🤖 Document Q&A Chatbot")
 #if not api_key:
 #    st.warning("Please enter your OpenAI API key to continue.")
 #    st.stop()
-os.environ["OPENAI_API_KEY"] = api_key
+#os.environ["OPENAI_API_KEY"] = api_key
 
 # --- 2. PDF Upload ---
 uploaded_file = st.file_uploader("📄 Upload a PDF file", type=["pdf"])
